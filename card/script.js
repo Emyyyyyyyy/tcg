@@ -1,80 +1,38 @@
 const boutonCharger = document.getElementById("charger");
-const boutonTelecharger = document.getElementById("telecharger");
+const boutonTelecharger = document.getElementById("telecharger"); // Ajoute un bouton dans ton HTML
 const inputJSON = document.getElementById("jsonFile");
-const inputImage = document.getElementById("imageFile");
+const renderZone = document.getElementById("carte-render");
 
-const carteRender = document.getElementById("carte-render");
-const carteImage = document.getElementById("carte-image");
-const txtNom = document.getElementById("txt-nom");
-const txtStats = document.getElementById("txt-stats");
-const boxEveil = document.getElementById("box-eveil");
-const txtEveilTitre = document.getElementById("txt-eveil-titre");
-const txtEveilDesc = document.getElementById("txt-eveil-desc");
-
-let carteData = null;
-
-// Chargement du JSON
-boutonCharger.addEventListener("click", () => {
-    inputJSON.value = "";
-    inputJSON.click();
-});
+boutonCharger.addEventListener("click", () => inputJSON.click());
 
 inputJSON.addEventListener("change", (e) => {
-    const fichier = e.target.files[0];
-    if (!fichier) return;
-
-    const lecteur = new FileReader();
-    lecteur.onload = function(event) {
-        try {
-            const donnees = JSON.parse(event.target.result);
-            if (donnees.length > 0) {
-                carteData = donnees[0];
-                inputImage.value = "";
-                inputImage.click();
-            }
-        } catch(err) {
-            alert("Erreur JSON");
-        }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const cartes = JSON.parse(event.target.result);
+        afficherCarte(cartes[0]);
     };
-    lecteur.readAsText(fichier);
+    reader.readAsText(e.target.files[0]);
 });
 
-// Chargement de l'image en données brutes pour éviter le blocage local
-inputImage.addEventListener("change", (e) => {
-    const fichier = e.target.files[0];
-    if (!fichier) return;
+function afficherCarte(carte) {
+    renderZone.innerHTML = `
+        <div id="contenu-carte">
+            <img src="assets/${carte.id}.jpg">
+            <div class="infos">
+                <h3>${carte.nom}</h3>
+                <p>Attaque: ${carte.attaque} | Défense: ${carte.defense}</p>
+            </div>
+            ${carte.eveil ? `<div class="eveil-box"><strong>Éveil (${carte.eveilCost})</strong><br>${carte.eveilText}</div>` : ''}
+        </div>
+    `;
+}
 
-    const lecteur = new FileReader();
-    lecteur.onload = function(event) {
-        carteImage.src = event.target.result;
-        
-        txtNom.innerText = carteData.nom;
-        txtStats.innerText = `Attaque : ${carteData.attaque} | Défense : ${carteData.defense}`;
-        
-        if (carteData.eveil) {
-            txtEveilTitre.innerText = `Éveil (${carteData.eveilCost}) :`;
-            txtEveilDesc.innerText = carteData.eveilText;
-            boxEveil.style.display = "flex";
-        } else {
-            boxEveil.style.display = "none";
-        }
-        
-        carteRender.style.display = "block";
-        boutonTelecharger.style.display = "inline-block";
-    };
-    lecteur.readAsDataURL(fichier);
-});
-
-// Téléchargement via html2canvas
+// C'est ici que la magie opère
 boutonTelecharger.addEventListener("click", () => {
-    html2canvas(carteRender, {
-        scale: 2,
-        logging: false,
-        useCORS: true
-    }).then(canvas => {
-        const lien = document.createElement("a");
-        lien.download = "carte_" + (carteData.id || "export") + ".png";
-        lien.href = canvas.toDataURL("image/png");
-        lien.click();
+    html2canvas(renderZone).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "ma-carte.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
     });
 });
