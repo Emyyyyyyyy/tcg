@@ -1,0 +1,11 @@
+[
+    {
+        "id": "001",
+        "nom": "Dragon Rouge",
+        "attaque": 150,
+        "defense": 150,
+        "eveil": true,
+        "eveilCost": 2,
+        "eveilText": "Bla bla"
+    }
+]

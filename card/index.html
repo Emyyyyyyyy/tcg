@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Générateur de Cartes - Good Night Kids</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <h2>Générateur de cartes</h2>
+    
+    <div class="controls">
+        <button id="charger">1. Charger le JSON</button>
+        <button id="telecharger" style="display:none;">2. Télécharger la carte</button>
+    </div>
+
+    <input type="file" id="jsonFile" accept=".json" style="display:none;">
+    <input type="file" id="imageFile" accept=".jpg,.jpeg,.png" style="display:none;">
+
+    <div id="carte-render">
+        <img id="carte-image" src="" alt="">
+        
+        <div class="carte-infos">
+            <div id="txt-nom" class="carte-nom"></div>
+            <div id="txt-stats" class="carte-stats"></div>
+            
+            <div id="box-eveil" class="eveil-box" style="display:none;">
+                <strong id="txt-eveil-titre"></strong>
+                <span id="txt-eveil-desc"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
