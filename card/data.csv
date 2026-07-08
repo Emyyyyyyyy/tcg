@@ -1,4 +1,8 @@
-ID;Nom;classe;Titre;Type;Sous_Type;Rarete;Attaque;Defense;Eveil_Cout;Texte_Eveil;Texte_Repli;Illustrateur; Illustration
-001;Dragon Rouge;Crâ;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait; file:///C:/Users/rdutilly/Documents/card/assets/Dragon.png;
-
+ID;Nom;Classe;Titre;Type;Sous_Type;Rarete;Attaque;Defense;Eveil_Cout;Texte_Eveil;Texte_Repli;Illustrateur; Illustration
+001;Dragon Rouge;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
+002;Dragon bleu;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
+003;Dragon jaune;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
+004;Dragon vert;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
+005;Dragon orange;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
+006;Dragon noir;Cra;Mauvais perdant;Personnage;;commune;1;1;2;zfezfe;zfzfe;Jean pasfait;;
 
