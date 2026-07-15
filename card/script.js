@@ -174,50 +174,53 @@ else if (typeCarte === "dofus") {
 
 // Export Image
 // Export Image en ZIP
+// Export Image en ZIP (Séquentiel pour éviter la perte des fonds)
 boutonTelecharger.addEventListener("click", async () => {
     if (boutonTelecharger.disabled) return;
 
-    // Change visuellement le bouton pour montrer que ça travaille
+    // Change visuellement le bouton
     const texteOriginal = boutonTelecharger.innerText;
-    boutonTelecharger.innerText = "Création du ZIP en cours...";
+    boutonTelecharger.innerText = "Création du ZIP... (Patientez)";
     boutonTelecharger.disabled = true;
     boutonTelecharger.style.opacity = "0.5";
     boutonTelecharger.style.cursor = "wait";
 
-    // Initialise JSZip et crée un dossier "cards" à l'intérieur
     const zip = new JSZip();
     const dossierCards = zip.folder("cards");
-
     const cartes = document.querySelectorAll(".carte-item");
-    const promesses = [];
 
-    // On parcourt chaque carte pour lancer html2canvas
-    cartes.forEach((item, index) => {
-        const promesse = html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
-            // Nettoyage de l'ID (ex: "PROXY : 001" devient "001")
-            const texteId = item.querySelector(".id-carte").innerText;
-            const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || index;
-
-            // Récupère l'image en base64 et enlève l'en-tête pour JSZip
-            const imageData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
-            
-            // Ajoute l'image dans le dossier "cards" du ZIP
-            dossierCards.file(`carte_${idPropre}.png`, imageData, { base64: true });
+    // LA SOLUTION EST ICI : Une boucle qui traite les cartes une par une
+    for (let index = 0; index < cartes.length; index++) {
+        const item = cartes[index];
+        
+        // On force le script à ATTENDRE que cette carte soit finie avant de lancer la suivante
+        const canvas = await html2canvas(item, { 
+            useCORS: true, 
+            backgroundColor: '#000000', // Sécurité supplémentaire pour le fond
+            scale: 1, 
+            width: 372, 
+            height: 520 
         });
-        promesses.push(promesse);
-    });
 
-    // On attend que toutes les images soient générées
-    await Promise.all(promesses);
+        // Nettoyage de l'ID
+        const texteId = item.querySelector(".id-carte").innerText;
+        const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || index;
 
-    // On génère et on télécharge le fichier ZIP final
+        // Récupération de l'image
+        const imageData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
+        
+        // Ajout au ZIP
+        dossierCards.file(`carte_${idPropre}.png`, imageData, { base64: true });
+    }
+
+    // Le code arrive ici SEULEMENT quand toutes les cartes ont été traitées proprement
     zip.generateAsync({ type: "blob" }).then(function(content) {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);
-        link.download = "cards_export.zip"; // Nom du fichier zip téléchargé
+        link.download = "cards_export.zip"; 
         link.click();
 
-        // On remet le bouton à son état normal
+        // Retour à la normale
         boutonTelecharger.innerText = texteOriginal;
         boutonTelecharger.disabled = false;
         boutonTelecharger.style.opacity = "1";
