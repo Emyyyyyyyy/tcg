@@ -1,117 +1,75 @@
-/* --- Structure de base --- */
-body { background: #121212; color: #e0e0e0; font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; padding-top: 20px; }
-button { background: #2a2a2a; color: #ffffff; border: 1px solid #444; border-radius: 8px; padding: 12px 24px; cursor: pointer; margin: 10px; }
+/* --- Importation des polices --- */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;700;800&display=swap');
+@import url('[https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap)');
+
+/* --- Layout Global --- */
+body { background: #121212; color: #e0e0e0; font-family: 'Barlow Condensed', sans-serif; text-align: center; padding-top: 20px; }
+
+/* --- Boutons --- */
+button { background: #2a2a2a; color: #ffffff; border: 1px solid #444; border-radius: 8px; padding: 8px 16px; cursor: pointer; margin: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; }
 button:disabled { background-color: #444 !important; color: #888 !important; cursor: not-allowed; opacity: 0.5; }
 
-/* --- Grille de cartes --- */
-#carte-render { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 20px; 
-    justify-content: center; 
-    padding: 20px; 
-    width: 100%; 
-}
-
-.carte-item { 
-    width: 372px; 
-    min-width: 372px; 
-    height: 520px; 
-    position: relative; 
-    overflow: hidden; 
-    background: #000; 
-    border-radius: 25px; 
-    flex-shrink: 0; 
-}
+/* --- Rendu des cartes --- */
+#carte-render { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; padding: 20px; width: 100%; }
+.carte-item { width: 372px; height: 520px; position: relative; overflow: hidden; background: #000; border-radius: 15px; flex-shrink: 0; }
 
 /* --- Calques --- */
 .illustration-fond { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 .calque-bordure { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 .calque-texte { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
 
-/* --- Texte : Classe, Type, Nom --- */
-.classe-carte { 
-    position: absolute; top: 15px; left: 20px; 
-    font-size: 14px; font-weight: bold; color: #fff;
-    text-transform: uppercase; text-shadow: 1px 1px 2px #000; z-index: 4; 
-}
-
-.type-carte { 
-    margin-top: 15px; padding-left: 80px; 
-    font-size: 14px; color: rgba(255, 255, 255, 0.8); 
-    text-transform: uppercase; text-align: left; z-index: 3; 
-}
-
-.nom-carte { 
-    font-size: 16px; color: #fff; text-transform: uppercase; margin-top: 5px; 
-    text-align: left; padding-left: 80px; font-family: 'Arial Black', Impact, sans-serif; text-shadow: 2px 2px 0 #000; 
-}
-
-.titre-personnage { 
-    font-size: 16px; color: rgba(255, 255, 255, 0.9); font-style: italic; 
-    text-align: left; padding-left: 80px; margin-top: -5px; text-shadow: 2px 2px 2px #000; z-index: 3; 
-}
-
-/* --- Statistiques --- */
-.stats-carte { 
-    position: absolute; top: 50%; left: 10%; display: flex; justify-content: flex-start; gap: 15px; 
-    width: 90%; font-size: 45px; font-family: 'Arial Black', Impact, sans-serif; text-shadow: none; 
-}
-.stat-atk { color: #000; }
-.stat-def { color: #fff; }
+/* --- En-tête --- */
+.classe-carte { position: absolute; top: 25px; left: 23px; font-size: 24px; font-weight: 800; color: #9c8c72; text-transform: uppercase; z-index: 4; }
+.type-carte { margin-top: 11px; padding-left: 87px; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-transform: uppercase; text-align: left; z-index: 3; font-weight: 700; }
+.nom-carte { font-size: 26px; color: #fff; text-transform: uppercase; padding-left: 85px; font-weight: 800; text-shadow: 4px 2px 0 #000; text-align: left; }
+.titre-personnage { margin-top: -4px; font-size: 18px; color: ffffff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-style: italic; padding-left: 87px; -webkit-text-stroke: 1.5px ##eee8d1; drop-shadow(3px 3px 3px rgba(0,0,0,0.9)); text-align: left; font-weight: 500; }
+.classe-icone { position: absolute; top: -3px; left: -1px; width: 40px; height: 40px; z-index: 4; object-fit: contain; }
 
 /* --- Pied de carte --- */
-.id-carte { position: absolute; bottom: 15px; left: 15px; font-size: 10px; color: rgba(255, 255, 255, 0.6); z-index: 10; }
-.credit-artiste { position: absolute; bottom: 15px; right: 15px; font-size: 10px; color: rgba(255, 255, 255, 0.6); z-index: 10; text-transform: uppercase; }
+.id-carte { position: absolute; bottom: 18px; left: 25px; font-size: 11px; color: rgba(255, 255, 255, 0.75); z-index: 10; font-weight: 600; text-transform: uppercase; }
+.credit-artiste { position: absolute; bottom: 18px; right: 25px; font-size: 11px; color: rgba(255, 255, 255, 0.75); z-index: 10; font-weight: 600; text-transform: uppercase; }
 
-/* --- Effets --- */
-.effets-wrapper { 
-    position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); 
-    width: 85%; height: 110px; display: flex; flex-direction: column; gap: 5px; z-index: 10; 
-}
+/* --- Stats Personnages (ATK / DEF) --- */
+.perso-box-atk { position: absolute; bottom: 185px; left: 20px; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; z-index: 5; }
+.perso-icone-atk { position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+.perso-chiffre-atk { position: relative; z-index: 2; font-size: 42px; font-weight: 800; color: #000; line-height: 1; }
+.perso-box-def { position: absolute; bottom: 185px; left: 100px; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; z-index: 5; }
+.perso-icone-def { position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+.perso-chiffre-def { position: relative; z-index: 2; font-size: 42px; font-weight: 800; color: #fff; font-family: 'Barlow Condensed', sans-serif; text-shadow: 2px 2px 4px #000; }
 
-.effet-box { 
-    display: flex; 
-    align-items: center; 
-    padding: 8px; 
-    border-radius: 6px; 
-    margin-bottom: 5px; 
-    backdrop-filter: blur(3px); 
-    color: #fff;
-    padding-left: 20px; /* Décalage à gauche */
-}
-.eveil-bg { background: rgba(65, 105, 225, 0.5); }
-.repli-bg { 
-    background: rgba(15, 15, 15, 0.8); 
-    padding: 8px 15px; /* On garde un padding équilibré */
-    display: flex; 
-    justify-content: center; /* Centre horizontalement */
-    align-items: center;    /* Centre verticalement */
-    text-align: center;     /* Assure le centrage du texte multi-lignes */
-    border-radius: 6px;
-    margin-bottom: 5px;
-    backdrop-filter: blur(3px);
-    color: #fff;
-}
+/* --- Statistiques : Sorts --- */
+.sort-bg { background: rgba(160, 120, 40, 0.85); border: 1px solid rgba(255, 180, 100, 0.85); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); border-radius: 10px; display: flex; align-items: center; width: 100%; height: 100%; padding: 0 25px; box-sizing: border-box; }
+.sort-bg .effet-texte { font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: 14px; color: #ffffff; line-height: 1.1; text-align: left; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); padding: 0 5px; width: 100%; }
+.cout-sort-box { position: absolute; bottom: 175px; left: 20px; width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; z-index: 5; }
+.cout-sort-icone { position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+.cout-sort-chiffre { position: relative; z-index: 2; font-size: 30px; font-weight: 800; color: #fff; font-family: 'Barlow Condensed', sans-serif; text-shadow: 2px 2px 4px #000; }
 
-/* Hexagone de coût : Blanc à 90% d'opacité */
-.hexagone {
-    width: 26px; 
-    height: 30px;
-    background-color: rgba(255, 255, 255, 0.9); /* Blanc opacité 90% */
-    color: #4169E1; /* Bleu Roi pour le chiffre */
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    font-weight: bold; 
-    font-size: 14px;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    margin-right: 25px; /* Écart augmenté */
-    flex-shrink: 0;
-}
+/* --- Wrapper Dofus --- */
+.dofus-box-1 { flex: 1; width: 100%; height: 100%; border-radius: 10px; display: flex; align-items: center; padding: 0 10px; box-sizing: border-box; border: 1px solid rgba(80, 160, 120, 1.0); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); background: rgba(40, 120, 80, 0.85); }
+.dofus-box-2 { flex: 1; width: 100%; height: 100%; border-radius: 10px; display: flex; align-items: center; padding: 0 10px; box-sizing: border-box; border: 1px solid rgba(80, 160, 120, 0.9); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); background: rgba(10, 20, 15, 0.9); }
 
-.effet-texte { 
-    text-align: left; 
-    font-size: 12px; 
-    line-height: 1.2;
-}
+/* --- Wrapper Effets --- */
+.effets-wrapper { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 85%; height: 135px; display: flex; flex-direction: column; gap: 5px; z-index: 10; }
+
+/* --- Blocs Effets (Personnages) --- */
+.perso-bg { display: flex; flex-direction: column; width: 100%; height: 100%; gap: 5px; box-sizing: border-box; }
+.perso-eveil-box, .perso-repli-box { flex: 1; width: 100%; height: 100%; border-radius: 10px; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; border: 1px solid rgba(166, 146, 106, 1.0); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); }
+.perso-eveil-box { background: rgba(46, 68, 114, 0.85); }
+.perso-repli-box { background: rgba(15, 15, 15, 0.8); }
+
+.perso-eveil-box .effet-texte, .perso-repli-box .effet-texte { 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: 16px; color: #ffffff; line-height: 1.05; text-align: left; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9); padding-left: 10px; padding-right: 5px;}
+
+/* --- Icônes Effets --- */
+.effet-icone { width: 45px; height: 45px; flex-shrink: 0; object-fit: contain; }
+
+.eveil-cout-container { position: relative; width: 45px; height: 45px; flex-shrink: 0; }
+.effet-icone-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+.eveil-cout-chiffre { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; font-size: 32px; font-weight: 800; color: #153245; font-family: 'Barlow Condensed', sans-serif; text-shadow: none; line-height: 1; }
+
+/* --- Capsules --- */
+.capsule-mot { display: inline-block; padding: 2px 6px; margin: -3px 2px 0 2px; border-radius: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.8em; font-weight: 600; text-transform: uppercase; vertical-align: middle; line-height: 1; box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.5); }
+.capsule-apparition { background-color: rgba(65, 105, 225, 0.9); }
+.capsule-rangement { background-color: rgba(30, 30, 30, 0.9); }
+.capsule-precision { background-color: rgba(50, 205, 50, 0.9); }
+.capsule-synchronisation { padding: 4px 8px; font-size: 0.9em; background-color: rgba(0, 0, 0, 0.5); }
+.capsule-pouvoir-unique { padding: 4px 8px; font-size: 0.9em; background-color: rgba(0, 0, 0, 0.5); }

@@ -3,25 +3,20 @@ const boutonTelecharger = document.getElementById("telecharger");
 const inputCSV = document.getElementById("csvFile");
 const renderZone = document.getElementById("carte-render");
 
-// Initialisation : Désactiver le bouton de téléchargement
 boutonTelecharger.disabled = true;
 boutonTelecharger.style.opacity = "0.5";
 boutonTelecharger.style.cursor = "not-allowed";
 
-boutonCharger.addEventListener("click", () => {
-    inputCSV.click();
-});
+boutonCharger.addEventListener("click", () => inputCSV.click());
 
 inputCSV.addEventListener("change", (e) => {
     if (!e.target.files[0]) return;
-    
     Papa.parse(e.target.files[0], {
         header: true,
         skipEmptyLines: true,
+        encoding: "ISO-8859-1",
         complete: function(results) {
             genererToutesLesCartes(results.data);
-            
-            // Une fois le CSV chargé, on active le bouton
             boutonTelecharger.disabled = false;
             boutonTelecharger.style.opacity = "1";
             boutonTelecharger.style.cursor = "pointer";
@@ -39,70 +34,193 @@ function genererToutesLesCartes(cartes) {
     });
 }
 
+// Vérification stricte : ignore null, vide, "-" et "none"
+const estTexteValide = (txt) => {
+    if (!txt) return false;
+    const str = txt.toString().trim().toLowerCase();
+    return str !== "" && str !== "-" && str !== "none";
+};
+
+// Stylisation des mots-clés
+function styliserMotsCles(texte) {
+    if (!texte) return "";
+    const motsCles = {
+        "apparition": "capsule-apparition",
+        "synchronisation": "capsule-synchronisation",
+        "rangement": "capsule-rangement",
+        "pouvoir unique": "capsule-pouvoir-unique",
+        "précision": "capsule-precision"
+    };
+
+    let texteFormate = texte;
+    for (const [mot, classeCss] of Object.entries(motsCles)) {
+        const regex = new RegExp(`(${mot})`, "gi");
+        texteFormate = texteFormate.replace(regex, `<span class="capsule-mot ${classeCss}">$1</span>`);
+    }
+    return texteFormate;
+}
+
+// Construction HTML de la carte
 function construireHTMLCarte(carte, total) {
-    const idAffiche = `${String(carte.ID).padStart(3, '0')}/${String(total).padStart(3, '0')}`;
-    const classeDisplay = `<div class="classe-carte">${carte.Classe || ""}</div>`;
+    // 1. GÉNÉRATION DE L'IDENTIFIANT // On prend l'ID, on le convertit en chaîne, et on le complète par des zéros à gauche (ex: 1 devient 001)
+    const idAffiche =  "PROXY : " + `${String(carte.ID).padStart(3, '0')}/${String(total).padStart(3, '0')}`;
     
-    let typeDisplay = "";
-    if (carte.Type && carte.Type.trim() !== "") {
-        typeDisplay = `<span class="type-principal">${carte.Type}</span>`;
-        if (carte.Sous_Type && carte.Sous_Type.trim() !== "") typeDisplay += ` — <i>${carte.Sous_Type}</i>`;
-    }
+    // On récupère le type en minuscule pour pouvoir faire des comparaisons (sort vs personnage)
+    const typeCarte = (carte.Type || "").toLowerCase();
+    
+    // 2. GESTION DE L'ICÔNE DE CLASSE
+    // Nettoyage de l'espace, puis création de la balise image si le nom de classe existe
+    const classeNom = (carte.Classe || "").trim();
+    let classeDisplay = classeNom !== "" ? `<img src="classe/${classeNom}.png" class="classe-icone">` : "";
 
-    const titreDisplay = (carte.Titre && carte.Titre.trim() !== "") ? `<div class="titre-personnage">${carte.Titre}</div>` : "";
-    
+    // Initialisation des variables qui vont stocker les portions HTML dynamiques
+    let htmlStats = "";
     let effetsHTML = "";
-    
-    // Bloc Éveil sans le mot "Éveil", avec hexagone
-    if (carte.Texte_Eveil && carte.Texte_Eveil.trim() !== "") {
-        effetsHTML += `
-            <div class="effet-box eveil-bg">
-                <div class="hexagone">${carte.Eveil_Cout}</div>
-                <div class="effet-texte">${carte.Texte_Eveil}</div>
-            </div>`;
-    }
-    
-    // Bloc Repli (si tu veux garder le mot Repli, sinon on l'enlève aussi)
-	if (carte.Texte_Repli && carte.Texte_Repli.trim() !== "") {
-    	effetsHTML += `
-        	<div class="effet-box repli-bg">
-        	    <div class="effet-texte">${carte.Texte_Repli}</div>
-        	</div>`;
-	}
 
-    return `
-        <img src="assets/${carte.ID}.jpg" class="illustration-fond" onerror="this.onerror=null; this.src='assets/${carte.ID}.png';">
-        <img src="cadre.png" class="calque-bordure">
-        <div class="calque-texte">
-            ${classeDisplay}
-            <div class="type-carte">${typeDisplay}</div>
-            <div class="nom-carte">${carte.Nom || ""}</div>
-            ${titreDisplay}
-            <div class="stats-carte">
-                <span class="stat-atk">${carte.Attaque || "0"}</span> 
-                <span class="stat-def">${carte.Defense || "0"}</span>
+    // 3. LOGIQUE CONDITIONNELLE SELON LE TYPE DE CARTE
+    // Si la carte est un "sort"
+    if (typeCarte === "sort") {
+        // Construction du bloc coût spécifique aux sorts
+        htmlStats = `
+            <div class="cout-sort-box">
+                <img src="UI/fond-sort.png" class="cout-sort-icone">
+                <span class="cout-sort-chiffre">${carte.Eveil_Cout || "0"}</span>
+            </div>`;
+        // Ajout des effets de texte si le texte d'éveil est valide (via estTexteValide)
+        effetsHTML = estTexteValide(carte.Texte_Eveil) ? `
+            <div class="effets-wrapper">
+                <div class="sort-bg">
+                    <div class="effet-texte">${styliserMotsCles(carte.Texte_Eveil)}</div>
+                </div>
+            </div>` : "";
+    } 
+    // Sinon, si c'est un "personnage"
+    else if (typeCarte === "personnage") {
+        // Construction du bloc ATK / DEF
+        htmlStats = `
+            <div class="perso-box-atk">
+                <img src="UI/fond-atk.png" class="perso-icone-atk">
+                <span class="perso-chiffre-atk">${carte.Attaque || "0"}</span>
             </div>
+            <div class="perso-box-def">
+                <img src="UI/fond-def.png" class="perso-icone-def">
+                <span class="perso-chiffre-def">${carte.Defense || "0"}</span>
+            </div>`;
+
+        // Assemblage des effets (Eveil + Repli)
+        let zonesEffets = "";
+        // Si le texte d'éveil est valide, on crée sa boîte dédiée
+        if (estTexteValide(carte.Texte_Eveil)) {
+            zonesEffets += `
+                <div class="perso-eveil-box">
+                    <div class="eveil-cout-container">
+                        <img src="UI/icon-eveil.png" class="effet-icone-bg">
+                        <span class="eveil-cout-chiffre">${carte.Eveil_Cout || "0"}</span>
+                    </div>
+                    <div class="effet-texte">${styliserMotsCles(carte.Texte_Eveil)}</div>
+                </div>`;
+        }
+        // Si le texte de repli est valide, on crée sa boîte dédiée
+        if (estTexteValide(carte.Texte_Repli)) {
+            zonesEffets += `
+                <div class="perso-repli-box">
+                    <img src="UI/icon-repli.png" class="effet-icone">
+                    <div class="effet-texte">${styliserMotsCles(carte.Texte_Repli)}</div>
+                </div>`;
+        }
+
+        // On enveloppe les zones créées dans le wrapper principal si au moins une zone existe
+        if (zonesEffets !== "") {
+            effetsHTML = `<div class="effets-wrapper"><div class="perso-bg">${zonesEffets}</div></div>`;
+        }
+    }
+    // Sinon, si c'est un "dofus"
+
+else if (typeCarte === "dofus") {
+        htmlStats = ""; 
+
+        // On affiche uniquement le texte, sans les conteneurs d'icônes
+        let zonesEffets = `
+            <div class="dofus-box-1">
+                <div class="effet-texte">${styliserMotsCles(carte.Texte_Eveil) || ""}</div>
+            </div>
+            <div class="dofus-box-2">
+                <div class="effet-texte">${styliserMotsCles(carte.Texte_Repli) || ""}</div>
+            </div>`;
+
+        effetsHTML = `<div class="effets-wrapper"><div class="perso-bg">${zonesEffets}</div></div>`;
+    }
+
+
+    // 4. ASSEMBLAGE FINAL DU HTML DE LA CARTE
+    // Utilisation d'un template string pour injecter toutes les variables créées précédemment
+    return `
+        <img src="${carte.Illustration}" class="illustration-fond" onerror="this.src='default.jpg';">
+        <img src="UI/cadre.png" class="calque-bordure">
+        <div class="calque-texte">
+            <div class="classe-carte">${classeDisplay}</div>
+		<div class="type-carte">${carte.Type || ""}${estTexteValide(carte.Sous_Type) ? ` - ${carte.Sous_Type}` : ""}</div>
+            <div class="nom-carte">${carte.Nom || ""}</div>           
+            ${(carte.Titre) ? `<div class="titre-personnage">${carte.Titre}</div>` : ""}
+            
+            ${htmlStats}
+            
             <div class="id-carte">${idAffiche}</div>
             <div class="credit-artiste">${carte.Illustrateur || ""}</div>
-            <div class="effets-wrapper">${effetsHTML}</div>
+            
+            ${effetsHTML}
         </div>`;
 }
 
-boutonTelecharger.addEventListener("click", () => {
-    // Vérification de sécurité supplémentaire
+// Export Image
+// Export Image en ZIP
+boutonTelecharger.addEventListener("click", async () => {
     if (boutonTelecharger.disabled) return;
 
-    const items = document.querySelectorAll(".carte-item");
-    
-    items.forEach((item) => {
-        const idTexte = item.querySelector(".id-carte").innerText; // ex: "001/050"
-        const idPropre = idTexte.split('/')[0]; // On garde "001"
-        
-        html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
-            const link = document.createElement("a");
-            link.download = `carte_${idPropre}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+    // Change visuellement le bouton pour montrer que ça travaille
+    const texteOriginal = boutonTelecharger.innerText;
+    boutonTelecharger.innerText = "Création du ZIP en cours...";
+    boutonTelecharger.disabled = true;
+    boutonTelecharger.style.opacity = "0.5";
+    boutonTelecharger.style.cursor = "wait";
+
+    // Initialise JSZip et crée un dossier "cards" à l'intérieur
+    const zip = new JSZip();
+    const dossierCards = zip.folder("cards");
+
+    const cartes = document.querySelectorAll(".carte-item");
+    const promesses = [];
+
+    // On parcourt chaque carte pour lancer html2canvas
+    cartes.forEach((item, index) => {
+        const promesse = html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
+            // Nettoyage de l'ID (ex: "PROXY : 001" devient "001")
+            const texteId = item.querySelector(".id-carte").innerText;
+            const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || index;
+
+            // Récupère l'image en base64 et enlève l'en-tête pour JSZip
+            const imageData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
+            
+            // Ajoute l'image dans le dossier "cards" du ZIP
+            dossierCards.file(`carte_${idPropre}.png`, imageData, { base64: true });
         });
+        promesses.push(promesse);
+    });
+
+    // On attend que toutes les images soient générées
+    await Promise.all(promesses);
+
+    // On génère et on télécharge le fichier ZIP final
+    zip.generateAsync({ type: "blob" }).then(function(content) {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(content);
+        link.download = "cards_export.zip"; // Nom du fichier zip téléchargé
+        link.click();
+
+        // On remet le bouton à son état normal
+        boutonTelecharger.innerText = texteOriginal;
+        boutonTelecharger.disabled = false;
+        boutonTelecharger.style.opacity = "1";
+        boutonTelecharger.style.cursor = "pointer";
     });
 });
