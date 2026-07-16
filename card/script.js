@@ -173,57 +173,39 @@ else if (typeCarte === "dofus") {
 }
 
 // Export Image
-// Export Image en ZIP
-// Export Image en ZIP (Séquentiel pour éviter la perte des fonds)
-boutonTelecharger.addEventListener("click", async () => {
+boutonTelecharger.addEventListener("click", () => {
     if (boutonTelecharger.disabled) return;
 
-    // Change visuellement le bouton
-    const texteOriginal = boutonTelecharger.innerText;
-    boutonTelecharger.innerText = "Création du ZIP... (Patientez)";
-    boutonTelecharger.disabled = true;
-    boutonTelecharger.style.opacity = "0.5";
-    boutonTelecharger.style.cursor = "wait";
+    // On cible uniquement le premier élément de la page ayant la classe .carte-item
+    const premiereCarte = document.querySelector(".carte-item");
 
-    const zip = new JSZip();
-    const dossierCards = zip.folder("cards");
-    const cartes = document.querySelectorAll(".carte-item");
-
-    // LA SOLUTION EST ICI : Une boucle qui traite les cartes une par une
-    for (let index = 0; index < cartes.length; index++) {
-        const item = cartes[index];
-        
-        // On force le script à ATTENDRE que cette carte soit finie avant de lancer la suivante
-        const canvas = await html2canvas(item, { 
-            useCORS: true, 
-            backgroundColor: '#000000', // Sécurité supplémentaire pour le fond
-            scale: 1, 
-            width: 372, 
-            height: 520 
-        });
-
-        // Nettoyage de l'ID
-        const texteId = item.querySelector(".id-carte").innerText;
-        const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || index;
-
-        // Récupération de l'image
-        const imageData = canvas.toDataURL("image/png").replace(/^data:image\/(png|jpg);base64,/, "");
-        
-        // Ajout au ZIP
-        dossierCards.file(`carte_${idPropre}.png`, imageData, { base64: true });
+    if (!premiereCarte) {
+        alert("Aucune carte à télécharger !");
+        return;
     }
 
-    // Le code arrive ici SEULEMENT quand toutes les cartes ont été traitées proprement
-    zip.generateAsync({ type: "blob" }).then(function(content) {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(content);
-        link.download = "cards_export.zip"; 
-        link.click();
+    // Capture de la carte avec html2canvas
+    html2canvas(premiereCarte, { 
+        backgroundColor: '#000000', // Force le fond noir au cas où
+        scale: 1, 
+        width: 372, 
+        height: 520 
+    }).then(canvas => {
+        // Récupération de l'ID pour nommer le fichier
+        const texteId = premiereCarte.querySelector(".id-carte").innerText;
+        const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || "test_001";
 
-        // Retour à la normale
-        boutonTelecharger.innerText = texteOriginal;
-        boutonTelecharger.disabled = false;
-        boutonTelecharger.style.opacity = "1";
-        boutonTelecharger.style.cursor = "pointer";
+        // Conversion en lien de données local
+        const dataURL = canvas.toDataURL("image/png");
+
+        // Création du lien de téléchargement invisible
+        const link = document.createElement("a");
+        link.href = dataURL;
+        link.download = `carte_${idPropre}.png`;
+        
+        // Simule le clic pour lancer le téléchargement
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     });
 });
