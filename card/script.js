@@ -179,7 +179,7 @@ boutonTelecharger.addEventListener("click", () => {
         const idPropre = item.querySelector(".id-carte").innerText.split('/')[0];
         html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
             const link = document.createElement("a");
-            link.download = `carte_${idPropre}.png`;
+            link.download = `proxy-carte_${idPropre}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         });
