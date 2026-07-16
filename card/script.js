@@ -3,6 +3,8 @@ const boutonTelecharger = document.getElementById("telecharger");
 const inputCSV = document.getElementById("csvFile");
 const renderZone = document.getElementById("carte-render");
 
+let imageChargee = false;
+
 boutonTelecharger.disabled = true;
 boutonTelecharger.style.opacity = "0.5";
 boutonTelecharger.style.cursor = "not-allowed";
@@ -10,57 +12,92 @@ boutonTelecharger.style.cursor = "not-allowed";
 boutonCharger.addEventListener("click", () => inputCSV.click());
 
 inputCSV.addEventListener("change", (e) => {
-    if (!e.target.files[0]) return;
+
+    if (!e.target.files.length) return;
+
     Papa.parse(e.target.files[0], {
         header: true,
         skipEmptyLines: true,
-        encoding: "ISO-8859-1",
-        complete: function(results) {
-            // On envoie UNIQUEMENT la première ligne du CSV (la carte 1)
+        delimiter: ";",
+        encoding: "UTF-8",
+
+        complete(results) {
+
+            if (!results.data.length)
+                return;
+
             genererLaCarte(results.data[0]);
-            
-            boutonTelecharger.disabled = false;
-            boutonTelecharger.style.opacity = "1";
-            boutonTelecharger.style.cursor = "pointer";
         }
     });
+
 });
 
-// Affiche une seule carte, sans aucune boucle
 function genererLaCarte(carte) {
-    if (!carte) return; // Sécurité si le CSV est vide
-    
-    renderZone.innerHTML = ""; // On nettoie la zone
-    
-    const carteContainer = document.createElement("div");
-    carteContainer.className = "carte-item";
-    carteContainer.innerHTML = construireHTMLCarte(carte);
-    
-    renderZone.appendChild(carteContainer);
+
+    renderZone.innerHTML = "";
+    imageChargee = false;
+
+    const container = document.createElement("div");
+    container.className = "carte-item";
+    container.style.width = "372px";
+    container.style.height = "520px";
+    container.style.position = "relative";
+    container.style.overflow = "hidden";
+
+    const img = new Image();
+
+    img.crossOrigin = "anonymous";
+
+    // enlève les espaces éventuels dans le CSV
+    img.src = carte.Illustration.trim();
+
+    img.className = "illustration-fond";
+
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+
+    img.onload = () => {
+
+        imageChargee = true;
+
+        boutonTelecharger.disabled = false;
+        boutonTelecharger.style.opacity = "1";
+        boutonTelecharger.style.cursor = "pointer";
+
+    };
+
+    img.onerror = () => {
+
+        console.error("Impossible de charger :", img.src);
+
+    };
+
+    container.appendChild(img);
+    renderZone.appendChild(container);
+
 }
 
-// Construit uniquement la balise de l'image d'illustration
-function construireHTMLCarte(carte) {
-return `<img src="${carte.Illustration}" crossorigin="anonymous" class="illustration-fond" style="width: 100%; height: 100%; object-fit: cover;">`;}
+boutonTelecharger.addEventListener("click", async () => {
 
-// Télécharge uniquement cette carte unique
-boutonTelecharger.addEventListener("click", () => {
-    if (boutonTelecharger.disabled) return;
+    if (!imageChargee)
+        return;
 
-    // On cible la seule carte présente à l'écran
     const item = document.querySelector(".carte-item");
-    if (!item) return;
 
-    html2canvas(item, { 
-        useCORS: true, 
-        scale: 1, 
-        width: 372, 
-        height: 520,
-        backgroundColor: null
-    }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `illustration__one_unique.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+    const canvas = await html2canvas(item, {
+
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: null,
+        scale: 2,
+        logging: true
+
     });
+
+    const link = document.createElement("a");
+    link.download = "illustration_two.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+
 });
