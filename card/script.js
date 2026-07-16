@@ -1,76 +1,66 @@
 const boutonCharger = document.getElementById("charger");
 const boutonTelecharger = document.getElementById("telecharger");
-const inputJSON = document.getElementById("jsonFile");
+const inputCSV = document.getElementById("csvFile");
 const renderZone = document.getElementById("carte-render");
 
-let listeCartes = [];
+boutonTelecharger.disabled = true;
+boutonTelecharger.style.opacity = "0.5";
+boutonTelecharger.style.cursor = "not-allowed";
 
-boutonCharger.addEventListener("click", () => inputJSON.click());
+boutonCharger.addEventListener("click", () => inputCSV.click());
 
-inputJSON.addEventListener("change", (e) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        listeCartes = JSON.parse(event.target.result);
-        afficherCarte(listeCartes[0], listeCartes.length);
-    };
-    reader.readAsText(e.target.files[0]);
+inputCSV.addEventListener("change", (e) => {
+    if (!e.target.files[0]) return;
+    Papa.parse(e.target.files[0], {
+        header: true,
+        skipEmptyLines: true,
+        encoding: "ISO-8859-1",
+        complete: function(results) {
+            // On envoie UNIQUEMENT la première ligne du CSV (la carte 1)
+            genererLaCarte(results.data[0]);
+            
+            boutonTelecharger.disabled = false;
+            boutonTelecharger.style.opacity = "1";
+            boutonTelecharger.style.cursor = "pointer";
+        }
+    });
 });
 
-function afficherCarte(carte, total) {
-    const hasEveil = carte.eveilText && carte.eveilText.trim() !== "";
-    const hasRepli = carte.repliText && carte.repliText.trim() !== "";
-    const idAffiche = `${String(carte.id).padStart(3, '0')}/${String(total).padStart(3, '0')}`;
+// Affiche une seule carte, sans aucune boucle
+function genererLaCarte(carte) {
+    if (!carte) return; // Sécurité si le CSV est vide
     
-    // Logique type/sous-type conditionnelle
-    let typeDisplay = `<span class="type-principal">${carte.type}</span>`;
-    if (carte.sousType && carte.sousType.trim() !== "") {
-        typeDisplay += ` — <i>${carte.sousType}</i>`;
-    }
-
-    // Logique titre conditionnelle
-    const titreDisplay = (carte.titre && carte.titre.trim() !== "") 
-        ? `<div class="titre-personnage">${carte.titre}</div>` 
-        : "";
-
-    let effetsHTML = "";
-    if (hasEveil && hasRepli) {
-        effetsHTML = `<div class="effets-wrapper">
-                        <div class="effet-box eveil-bg"><strong>Éveil (${carte.eveilCost})</strong>${carte.eveilText}</div>
-                        <div class="effet-box repli-bg"><strong>Repli</strong>${carte.repliText}</div>
-                      </div>`;
-    } else if (hasEveil) {
-        effetsHTML = `<div class="effets-wrapper"><div class="effet-box eveil-bg" style="flex:2"><strong>Éveil (${carte.eveilCost})</strong>${carte.eveilText}</div></div>`;
-    } else if (hasRepli) {
-        effetsHTML = `<div class="effets-wrapper"><div class="effet-box repli-bg" style="flex:2"><strong>Repli</strong>${carte.repliText}</div></div>`;
-    }
-
-    renderZone.innerHTML = `
-        <img src="assets/${carte.id}.jpg" class="illustration-fond">
-        <img src="cadre.png" class="calque-bordure">
-        <div class="calque-texte">
-            <div class="type-carte">${typeDisplay}</div>
-            <div class="titre-carte">${carte.nom}</div>
-            ${titreDisplay}
-            <div class="stats-carte">
-                <span class="stat-atk">${carte.attaque}</span> 
-                <span class="stat-def">${carte.defense}</span>
-            </div>
-            <div class="id-carte">${idAffiche}</div>
-            <div class="credit-artiste">${carte.illu || ""}</div>
-            ${effetsHTML}
-        </div>`;
+    renderZone.innerHTML = ""; // On nettoie la zone
+    
+    const carteContainer = document.createElement("div");
+    carteContainer.className = "carte-item";
+    carteContainer.innerHTML = construireHTMLCarte(carte);
+    
+    renderZone.appendChild(carteContainer);
 }
 
+// Construit uniquement la balise de l'image d'illustration
+function construireHTMLCarte(carte) {
+    return `<img src="${carte.Illustration}" class="illustration-fond" style="width: 100%; height: 100%; object-fit: cover;">`;
+}
+
+// Télécharge uniquement cette carte unique
 boutonTelecharger.addEventListener("click", () => {
-    html2canvas(renderZone, { 
+    if (boutonTelecharger.disabled) return;
+
+    // On cible la seule carte présente à l'écran
+    const item = document.querySelector(".carte-item");
+    if (!item) return;
+
+    html2canvas(item, { 
         useCORS: true, 
         scale: 1, 
         width: 372, 
         height: 520,
-        backgroundColor: null 
+        backgroundColor: null
     }).then(canvas => {
         const link = document.createElement("a");
-        link.download = `carte_${Date.now()}.png`;
+        link.download = `illustration_unique.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
     });
