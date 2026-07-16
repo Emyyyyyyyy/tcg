@@ -1,0 +1,17 @@
+[
+    {
+        "id": "001",
+        "nom": "Dragon Rouge",
+        "classe": "Crâ",
+        "titre": "Mauvais perdant",
+        "type": "Personnage",
+        "soustypes": "",
+        "rareté": "commune",
+        "attaque": 1,
+        "defense": 1,
+        "eveilCost": 2,
+        "eveilText": "zfezfe",
+        "repliText": "zfzfe",
+        "illu": "Jean pasfait"
+    }
+]
