@@ -1,7 +1,7 @@
 const boutonTelecharger = document.getElementById("telecharger");
 const renderZone = document.getElementById("carte-render");
 
-const urlImage = "https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg";
+const urlImage = "https://tcg-proto-assets.ankama.com/test.jpg";
 
 const img = document.createElement("img");
 
