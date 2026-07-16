@@ -2,21 +2,22 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Cartes TCG - V0.2</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Générateur de Cartes</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>Générateur de cartes - V0.35</h2>
-    <div class="controls">
-        <button id="charger">Charger un CSV</button>
-        <button id="telecharger">Télécharger les cartes</button>
-        <input type="file" id="csvFile" accept=".csv" style="display:none;">
+    <div id="controle">
+        <button id="chargerImages">1 - Charger dossier</button>
+        <button id="charger" disabled>2 - Charger CSV</button>
+        <button id="telecharger" disabled>3 - Télécharger ZIP</button>
     </div>
-    <div id="carte-render"></div>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <input type="file" id="csvFile" accept=".csv" hidden>
+    <div id="messageEtape">Étape 1 : Chargez votre dossier d'images.</div>
+    <div id="zoneCartes"></div>
     <script src="script.js"></script>
 </body>
 </html>
