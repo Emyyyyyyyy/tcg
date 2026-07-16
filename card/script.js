@@ -175,37 +175,13 @@ else if (typeCarte === "dofus") {
 // Export Image
 boutonTelecharger.addEventListener("click", () => {
     if (boutonTelecharger.disabled) return;
-
-    // On cible uniquement le premier élément de la page ayant la classe .carte-item
-    const premiereCarte = document.querySelector(".carte-item");
-
-    if (!premiereCarte) {
-        alert("Aucune carte à télécharger !");
-        return;
-    }
-
-    // Capture de la carte avec html2canvas
-    html2canvas(premiereCarte, { 
-        backgroundColor: '#000000', // Force le fond noir au cas où
-        scale: 1, 
-        width: 372, 
-        height: 520 
-    }).then(canvas => {
-        // Récupération de l'ID pour nommer le fichier
-        const texteId = premiereCarte.querySelector(".id-carte").innerText;
-        const idPropre = texteId.split('/')[0].replace('PROXY : ', '').trim() || "test_001";
-
-        // Conversion en lien de données local
-        const dataURL = canvas.toDataURL("image/png");
-
-        // Création du lien de téléchargement invisible
-        const link = document.createElement("a");
-        link.href = dataURL;
-        link.download = `carte_${idPropre}.png`;
-        
-        // Simule le clic pour lancer le téléchargement
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    document.querySelectorAll(".carte-item").forEach((item) => {
+        const idPropre = item.querySelector(".id-carte").innerText.split('/')[0];
+        html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
+            const link = document.createElement("a");
+            link.download = `carte_${idPropre}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
     });
 });
