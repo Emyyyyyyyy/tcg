@@ -4,54 +4,69 @@ const urlAnkama = "https://tcg-proto-assets.ankama.com/test.jpg";
 const urlWiki = "https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg";
 
 
-function creerTest(url, nom) {
+function creerCanvasTest(url, nom) {
 
     const bloc = document.createElement("div");
 
-    bloc.style.marginBottom = "20px";
-
-
     const titre = document.createElement("p");
-    titre.innerText = nom;
-
+    titre.textContent = nom;
     bloc.appendChild(titre);
+
+
+    const canvas = document.createElement("canvas");
+
+    canvas.width = 372;
+    canvas.height = 520;
+
+    canvas.style.border = "1px solid black";
+
+    bloc.appendChild(canvas);
+
+
+    const ctx = canvas.getContext("2d");
 
 
     const img = new Image();
 
     img.crossOrigin = "anonymous";
 
+
+    img.onload = () => {
+
+        try {
+
+            ctx.drawImage(img, 0, 0, 372, 520);
+
+            console.log(nom + " : image dessinée");
+
+        }
+        catch(e) {
+
+            console.log(nom + " : erreur canvas", e);
+
+        }
+
+    };
+
+
+    img.onerror = () => {
+
+        console.log(nom + " : erreur chargement image");
+
+    };
+
+
     img.src = url;
-
-    img.style.width = "372px";
-    img.style.height = "520px";
-    img.style.objectFit = "cover";
-
-
-    bloc.appendChild(img);
 
 
     const bouton = document.createElement("button");
 
-    bouton.innerText = "Télécharger " + nom;
+    bouton.textContent = "Télécharger " + nom;
 
 
     bouton.onclick = () => {
 
-
-        const canvas = document.createElement("canvas");
-
-        canvas.width = 372;
-        canvas.height = 520;
-
-
-        const ctx = canvas.getContext("2d");
-
-
         try {
-
-            ctx.drawImage(img,0,0,372,520);
-
 
             const lien = document.createElement("a");
 
@@ -61,13 +76,10 @@ function creerTest(url, nom) {
 
             lien.click();
 
-
-            bouton.innerText = "OK";
-
         }
         catch(e) {
 
-            bouton.innerText = "ERREUR";
+            bouton.textContent = "Bloqué";
 
             console.log(nom,e);
 
@@ -78,18 +90,12 @@ function creerTest(url, nom) {
 
     bloc.appendChild(bouton);
 
-
     renderZone.appendChild(bloc);
 
 }
 
 
-
-// Nettoyage
 renderZone.innerHTML = "";
 
-
-// Tests
-creerTest(urlAnkama,"ANKAMA");
-
-creerTest(urlWiki,"WIKIPEDIA");
+creerCanvasTest(urlAnkama, "ANKAMA");
+creerCanvasTest(urlWiki, "WIKIPEDIA");
