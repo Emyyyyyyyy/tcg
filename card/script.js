@@ -35,7 +35,7 @@ function genererImages(cartes) {
         
         // On injecte UNIQUEMENT l'image
         carteContainer.innerHTML = `
-            <img src="${carte.Illustration}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='default.jpg';">
+            <img src="${carte.Illustration}" class="illustration-fond" onerror="this.src='default.jpg';">
         `;
         
         renderZone.appendChild(carteContainer);
@@ -52,7 +52,7 @@ boutonTelecharger.addEventListener("click", () => {
         
         html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
             const link = document.createElement("a");
-            link.download = `image_${idPropre}.png`;
+            link.download = `image_pro_${idPropre}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         });
