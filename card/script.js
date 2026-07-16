@@ -42,19 +42,19 @@ function genererImages(cartes) {
     });
 }
 
-// Export Image
 boutonTelecharger.addEventListener("click", () => {
-    if (boutonTelecharger.disabled) return;
-    
-    document.querySelectorAll(".carte-item").forEach((item) => {
-        // On récupère l'ID qu'on a caché dans le dataset
-        const idPropre = item.dataset.id;
-        
-        html2canvas(item, { useCORS: true, scale: 1, width: 372, height: 520 }).then(canvas => {
-            const link = document.createElement("a");
-            link.download = `image_pro_${idPropre}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        });
+    html2canvas(renderZone, { 
+        useCORS: true, 
+        scale: 1, 
+        width: 372, 
+        height: 520,
+        backgroundColor: null 
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `carte_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
     });
+});
+
 });
