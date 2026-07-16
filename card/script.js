@@ -4,59 +4,56 @@ const renderZone = document.getElementById("carte-render");
 const urlImage = "https://tcg-proto-assets.ankama.com/test.jpg";
 
 
-// Affichage de l'image
+// Affichage
 renderZone.innerHTML = `
-    <img id="imageCapture"
-         src="${urlImage}"
+<div id="captureCarte" style="
+    width:372px;
+    height:520px;
+">
+    <img src="${urlImage}"
          style="
             width:372px;
             height:520px;
             object-fit:cover;
          ">
+</div>
 `;
 
 
-// Téléchargement par capture écran
-boutonTelecharger.addEventListener("click", () => {
+// Export
+boutonTelecharger.addEventListener("click", async () => {
 
-    const element = document.getElementById("imageCapture");
-
-    if (!element) {
-        boutonTelecharger.innerText = "Pas d'image";
-        return;
-    }
-
+    const zone = document.getElementById("captureCarte");
 
     boutonTelecharger.innerText = "Capture...";
 
+    try {
 
-    html2canvas(element, {
-        width:372,
-        height:520,
-        scale:2,
-        useCORS:false,
-        allowTaint:true
-    })
-    .then(canvas => {
+        const canvas = await html2canvas(zone, {
+            width:372,
+            height:520,
+            scale:2,
+            foreignObjectRendering:true,
+            backgroundColor:null
+        });
+
+
+        const image = canvas.toDataURL("image/png");
+
 
         const lien = document.createElement("a");
-
         lien.download = "carte.png";
-
-        lien.href = canvas.toDataURL("image/png");
-
+        lien.href = image;
         lien.click();
 
 
         boutonTelecharger.innerText = "Télécharger";
 
-    })
-    .catch(err => {
+    } catch(e) {
 
-        boutonTelecharger.innerText = "Erreur";
+        boutonTelecharger.innerText = "Erreur capture";
+        console.log(e);
 
-        console.log(err);
-
-    });
+    }
 
 });
