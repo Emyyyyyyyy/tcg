@@ -1,67 +1,62 @@
-const boutonCharger = document.getElementById("charger");
 const boutonTelecharger = document.getElementById("telecharger");
-const inputCSV = document.getElementById("csvFile");
 const renderZone = document.getElementById("carte-render");
 
-let urlImage = "";
+const urlImage = "https://tcg-proto-assets.ankama.com/test.jpg";
 
-// Charger le CSV
-boutonCharger.addEventListener("click", () => inputCSV.click());
 
-inputCSV.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+// Affichage de l'image
+renderZone.innerHTML = `
+    <img id="imageCapture"
+         src="${urlImage}"
+         style="
+            width:372px;
+            height:520px;
+            object-fit:cover;
+         ">
+`;
 
-    Papa.parse(file, {
-        header: true,
-        delimiter: ";",
-        skipEmptyLines: true,
-        complete: (results) => {
-            const carte = results.data[0];
-            if (!carte) return;
 
-            // URL de l’image
-            urlImage = carte.Illustration.trim();
-
-            // Affichage simple
-            renderZone.innerHTML = `
-                <img src="${urlImage}"
-                     id="preview"
-                     style="width:372px;height:520px;object-fit:cover;">
-            `;
-        }
-    });
-});
-
-// Télécharger
+// Téléchargement par capture écran
 boutonTelecharger.addEventListener("click", () => {
 
-    if (!urlImage) {
-        alert("Charge d’abord un CSV");
+    const element = document.getElementById("imageCapture");
+
+    if (!element) {
+        boutonTelecharger.innerText = "Pas d'image";
         return;
     }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = 372;
-    canvas.height = 520;
 
-    const ctx = canvas.getContext("2d");
+    boutonTelecharger.innerText = "Capture...";
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
 
-    img.onload = () => {
-        ctx.drawImage(img, 0, 0, 372, 520);
+    html2canvas(element, {
+        width:372,
+        height:520,
+        scale:2,
+        useCORS:false,
+        allowTaint:true
+    })
+    .then(canvas => {
 
-        const link = document.createElement("a");
-        link.download = "carte.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-    };
+        const lien = document.createElement("a");
 
-    img.onerror = () => {
-        alert("Impossible de charger l’image");
-    };
+        lien.download = "carte.png";
 
-    img.src = urlImage;
+        lien.href = canvas.toDataURL("image/png");
+
+        lien.click();
+
+
+        boutonTelecharger.innerText = "Télécharger";
+
+    })
+    .catch(err => {
+
+        boutonTelecharger.innerText = "Erreur";
+
+        console.log(err);
+
+    });
+
 });
