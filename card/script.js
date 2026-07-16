@@ -41,8 +41,7 @@ function genererLaCarte(carte) {
 
 // Construit uniquement la balise de l'image d'illustration
 function construireHTMLCarte(carte) {
-    return `<img src="${carte.Illustration}" class="illustration-fond" style="width: 100%; height: 100%; object-fit: cover;">`;
-}
+return `<img src="${carte.Illustration}" crossorigin="anonymous" class="illustration-fond" style="width: 100%; height: 100%; object-fit: cover;">`;}
 
 // Télécharge uniquement cette carte unique
 boutonTelecharger.addEventListener("click", () => {
@@ -60,7 +59,7 @@ boutonTelecharger.addEventListener("click", () => {
         backgroundColor: null
     }).then(canvas => {
         const link = document.createElement("a");
-        link.download = `illustration_unique.png`;
+        link.download = `illustration__one_unique.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
     });
