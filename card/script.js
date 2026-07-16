@@ -190,7 +190,7 @@ boutonTelecharger.addEventListener("click", () => {
             backgroundColor: null // On garde le fond transparent de ton ancienne méthode si tu préfères !
         }).then(canvas => {
             const link = document.createElement("a");
-            link.download = `proxy-carte_${idPropre}.png`;
+            link.download = `proxy-doom-carte_${idPropre}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         }).catch(err => {
