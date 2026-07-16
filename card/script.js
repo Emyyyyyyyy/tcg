@@ -155,7 +155,7 @@ else if (typeCarte === "dofus") {
     // 4. ASSEMBLAGE FINAL DU HTML DE LA CARTE
     // Utilisation d'un template string pour injecter toutes les variables créées précédemment
     return `
-        <img src="assets/${carte.id}.jpg" class="illustration-fond">
+        <img src="${carte.Illustration}" class="illustration-fond">
         <img src="UI/cadre.png" class="calque-bordure">
         <div class="calque-texte">
             <div class="classe-carte">${classeDisplay}</div>
